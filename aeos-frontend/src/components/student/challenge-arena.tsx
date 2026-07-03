@@ -6,7 +6,7 @@ import { Zap, Brain, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlassCard } from "@/components/ui/glass-card";
 
-import { createClient } from "@/lib/supabase/client";
+import { completeInitialAssessment } from "@/app/actions/student-actions";
 
 interface ChallengeArenaProps {
   studentId: string;
@@ -235,11 +235,7 @@ export function ChallengeArena({ studentId, studentInterest, isInitialAssessment
       
       if (nextQ >= questions.length) {
         setIsFinished(true);
-        const supabase = createClient();
-        await supabase.from("student_profiles").update({
-          initial_assessment_completed: true,
-          mastery: newScore
-        }).eq("user_id", studentId);
+        await completeInitialAssessment(studentId, newScore);
       } else {
         setActiveQuestion(nextQ);
       }
