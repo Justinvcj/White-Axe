@@ -2,6 +2,7 @@ import { BrainCircuit, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StudentCard } from "@/components/teacher/student-card";
+import { SubmitPhaseOne } from "@/components/teacher/submit-phase-one";
 
 export default async function ClassRosterPage({ params }: { params: Promise<{ classId: string }> }) {
   const resolvedParams = await params;
@@ -38,22 +39,32 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
     ])
     .order("first_name", { ascending: true });
 
-  const students = dbStudents?.map((s: any) => ({
-    id: s.id,
-    first_name: s.first_name,
-    last_name: s.last_name,
-    mastery: s.student_profiles?.[0]?.overall_mastery_score || 0,
-    initialTier: s.student_profiles?.[0]?.current_tier || null,
-    interest: s.student_profiles?.[0]?.current_interest || "",
-    isCompleted: s.student_profiles?.[0]?.initial_assessment_completed || false,
-    granularStats: s.student_profiles?.[0]?.granular_performance || null,
-    subject: "AP Physics C",
-    assignedTeacher: "Dr. Feynman",
-    currentGrade: "11th Grade"
-  })) || [];
+  const students = dbStudents?.map((s: any) => {
+    // Supabase returns a 1-to-1 relationship as an object, not an array!
+    const profile = s.student_profiles || {};
+    
+    return {
+      id: s.id,
+      first_name: s.first_name,
+      last_name: s.last_name,
+      mastery: profile.overall_mastery_score || 0,
+      initialTier: profile.current_tier || null,
+      interest: profile.current_interest || "",
+      isCompleted: profile.initial_assessment_completed || false,
+      granularStats: profile.granular_performance || null,
+      subject: "AP Physics C",
+      assignedTeacher: "Dr. Feynman",
+      currentGrade: "11th Grade"
+    };
+  }) || [];
 
   const completedCount = students.filter(s => s.isCompleted).length;
   const totalCount = students.length;
+
+  // Determine if Phase 1 has been submitted by checking if the result payload exists in stats
+  const isPhase1Submitted = students.some(s => 
+    s.granularStats?.some((stat: any) => stat.type === "phase1_result")
+  );
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-4 md:p-8">
@@ -112,6 +123,13 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
             </div>
           </div>
         </div>
+        
+        <SubmitPhaseOne 
+          classId={classId}
+          students={students}
+          isSubmitted={isPhase1Submitted}
+          isReady={completedCount === totalCount}
+        />
       </div>
 
       {/* The Roster Grid */}
@@ -122,6 +140,7 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
             student={student} 
             classId={classId} 
             activeTopicId={activeTopic.id} 
+            isPhase1Submitted={isPhase1Submitted}
           />
         ))}
         {students.length === 0 && (

@@ -2,19 +2,22 @@
 
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/glass-card";
-import { GraduationCap, MapPin, Sparkles, Edit2, Check, Lock, ChevronDown, Activity, BookOpen, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { GraduationCap, MapPin, Sparkles, Edit2, Check, Lock, ChevronDown, Activity, BookOpen, AlertTriangle, CheckCircle2, BrainCircuit } from "lucide-react";
 import { HypothesisLogger } from "./hypothesis-logger";
 import { StudentTier } from "@/lib/types/database";
 import { createClient } from "@/lib/supabase/client";
 
-export function StudentCard({ student, classId, activeTopicId }: { student: any, classId: string, activeTopicId: string }) {
+export function StudentCard({ student, classId, activeTopicId, isPhase1Submitted = false }: { student: any, classId: string, activeTopicId: string, isPhase1Submitted?: boolean }) {
   const [interest, setInterest] = useState(student.interest || "");
   const [isEditingInterest, setIsEditingInterest] = useState(!student.interest || student.interest === "Unknown");
   const [isSaving, setIsSaving] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   
-  // Phase 1 Lock logic
-  const isPhase1Locked = true; // In the demo, we assume the teacher's hypothesis gets locked after initial entry.
+  // Lock hypothesis editing if Phase 1 has been submitted to the AI
+  const isPhase1Locked = isPhase1Submitted;
+  
+  const phase1Result = student.granularStats?.find((s: any) => s.type === "phase1_result");
+  const filteredStats = student.granularStats?.filter((s: any) => s.type !== "phase1_result") || [];
 
   const handleSaveInterest = async () => {
     setIsSaving(true);
@@ -93,15 +96,16 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
               <p className="text-[10px] text-blue-600 uppercase tracking-widest font-bold">
                 Teacher Hypothesis
               </p>
-              {isPhase1Locked && <Lock className="w-3 h-3 text-slate-400" title="Locked until end of week" />}
+              {isPhase1Locked && <Lock className="w-3 h-3 text-slate-400" title="Locked by AI Engine" />}
             </div>
             <HypothesisLogger 
               studentId={student.id}
               classId={classId}
               topicId={activeTopicId}
               initialTier={student.initialTier as StudentTier}
+              isLocked={isPhase1Locked}
             />
-            {isPhase1Locked && <p className="text-[10px] text-slate-400 mt-2">Locked for Phase 1. Unlocks at End of Week.</p>}
+            {isPhase1Locked && <p className="text-[10px] text-slate-400 mt-2">Locked. AI Comparison Finalized.</p>}
           </div>
           
           <button 
@@ -115,6 +119,31 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
         </div>
       </div>
 
+      {/* AI Comparison Results Block (Appears only when submitted) */}
+      {isPhase1Locked && phase1Result && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 p-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <BrainCircuit className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold text-blue-800 uppercase tracking-wider">AI vs Teacher Comparison</span>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-3 border border-slate-200 shadow-sm text-center">
+              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">Teacher Hypothesis</div>
+              <div className="text-lg font-black text-slate-700">{phase1Result.teacher_hypothesis}</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-slate-200 shadow-sm text-center">
+              <div className="text-[10px] text-slate-500 font-bold uppercase mb-1">AI Evaluation</div>
+              <div className="text-lg font-black text-blue-600">{phase1Result.ai_evaluation}</div>
+            </div>
+            <div className="bg-blue-600 rounded-lg p-3 shadow-md text-center">
+              <div className="text-[10px] text-blue-200 font-bold uppercase mb-1">Optimal Final Tier</div>
+              <div className="text-lg font-black text-white">{phase1Result.final_tier}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Analytics Expandable Drawer */}
       {isAnalyticsOpen && (
         <div className="bg-slate-50 border-t border-slate-200 p-6 animate-in slide-in-from-top-4">
@@ -123,10 +152,10 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
             Module Performance Breakdown
           </h4>
           
-          {student.granularStats && student.granularStats.length > 0 ? (
+          {filteredStats && filteredStats.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                {student.granularStats.map((stat: any, idx: number) => (
+                {filteredStats.map((stat: any, idx: number) => (
                   <div key={idx} className="flex justify-between items-center text-sm border-b border-slate-200 pb-2 last:border-0 last:pb-0">
                     <span className="text-slate-600 font-medium">{stat.day}</span>
                     <span className={`font-bold ${stat.score >= 80 ? 'text-emerald-600' : stat.score >= 60 ? 'text-amber-600' : 'text-rose-600'}`}>
@@ -142,7 +171,7 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
                 </h5>
                 <p className="text-sm text-slate-700 font-medium leading-relaxed">
                   Struggling with <span className="font-bold text-rose-600">
-                    {student.granularStats[student.granularStats.length - 1]?.weak_area || "General Concepts"}
+                    {filteredStats[filteredStats.length - 1]?.weak_area || "General Concepts"}
                   </span>.
                 </p>
                 <p className="text-xs text-slate-500 mt-3 p-2 bg-slate-50 rounded border border-slate-100">

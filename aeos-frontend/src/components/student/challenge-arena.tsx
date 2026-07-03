@@ -8,37 +8,133 @@ import { GlassCard } from "@/components/ui/glass-card";
 
 interface ChallengeArenaProps {
   studentId: string;
+  studentInterest: string;
 }
 
-const CHALLENGE_QUESTIONS = [
-  {
-    q: "A 1000 kg car is traveling at 25 m/s. What braking force is required to stop it in 5 seconds?",
-    options: ["2000 N", "5000 N", "12500 N", "25000 N"],
-    answerIndex: 1
-  },
-  {
-    q: "A block slides down a frictionless incline angled at 30° to the horizontal. What is its acceleration? (g ≈ 9.8 m/s²)",
-    options: ["4.9 m/s²", "9.8 m/s²", "8.5 m/s²", "0 m/s²"],
-    answerIndex: 0
-  },
-  {
-    q: "If the distance between two massive objects is tripled, the gravitational force between them becomes:",
-    options: ["1/3 as strong", "3 times stronger", "1/9 as strong", "9 times stronger"],
-    answerIndex: 2
-  },
-  {
-    q: "A 2 kg pendulum bob is released from a height of 0.5 m. What is its maximum velocity at the lowest point?",
-    options: ["3.1 m/s", "9.8 m/s", "1.5 m/s", "4.9 m/s"],
-    answerIndex: 0
-  },
-  {
-    q: "An astronaut weighing 800 N on Earth travels to a planet with twice the mass and twice the radius of Earth. What is his weight there?",
-    options: ["400 N", "800 N", "1600 N", "3200 N"],
-    answerIndex: 0
+const getQuestionsForInterest = (interest: string) => {
+  const normalized = interest.toLowerCase();
+  
+  if (normalized.includes("cricket")) {
+    return [
+      {
+        q: "A 150g cricket ball is bowled at 40 m/s. What braking force is required by the batsman's bat to stop it in 0.05 seconds?",
+        options: ["120 N", "200 N", "250 N", "300 N"],
+        answerIndex: 0
+      },
+      {
+        q: "A batsman hits a ball at an angle of 45° with a velocity of 30 m/s. What is the maximum height reached? (g ≈ 9.8 m/s²)",
+        options: ["22.9 m", "30.5 m", "45.9 m", "15.3 m"],
+        answerIndex: 0
+      },
+      {
+        q: "If the distance between the bowler and the batsman is 20m, how long does a 40 m/s delivery take to reach the crease?",
+        options: ["0.25 s", "0.5 s", "1 s", "2 s"],
+        answerIndex: 1
+      },
+      {
+        q: "A fielder catches a ball and pulls his hands back. This reduces the force of impact by:",
+        options: ["Decreasing change in momentum", "Increasing time of impact", "Decreasing mass", "Increasing velocity"],
+        answerIndex: 1
+      },
+      {
+        q: "During a spin bowl, the Magnus effect causes the ball to drift. This is primarily an application of:",
+        options: ["Newton's Third Law", "Bernoulli's Principle", "Archimedes' Principle", "Coulomb's Law"],
+        answerIndex: 1
+      }
+    ];
   }
-];
 
-export function ChallengeArena({ studentId: _studentId }: ChallengeArenaProps) {
+  if (normalized.includes("astronomy") || normalized.includes("space")) {
+    return [
+      {
+        q: "A 1000 kg satellite is orbiting Earth at 7 km/s. What thruster force is required to stop it in 100 seconds?",
+        options: ["70,000 N", "10,000 N", "7,000 N", "1,000 N"],
+        answerIndex: 0
+      },
+      {
+        q: "A rover slides down a frictionless Martian crater angled at 30°. What is its acceleration? (Mars g ≈ 3.7 m/s²)",
+        options: ["1.85 m/s²", "3.7 m/s²", "9.8 m/s²", "0 m/s²"],
+        answerIndex: 0
+      },
+      {
+        q: "If the distance between two massive stars is tripled, the gravitational force between them becomes:",
+        options: ["1/3 as strong", "3 times stronger", "1/9 as strong", "9 times stronger"],
+        answerIndex: 2
+      },
+      {
+        q: "A 2 kg pendulum bob is released on the Moon from a height of 0.5 m. What is its maximum velocity? (Moon g ≈ 1.6 m/s²)",
+        options: ["1.26 m/s", "3.1 m/s", "1.6 m/s", "4.9 m/s"],
+        answerIndex: 0
+      },
+      {
+        q: "An astronaut weighing 800 N on Earth travels to a planet with twice the mass and twice the radius of Earth. What is his weight there?",
+        options: ["400 N", "800 N", "1600 N", "3200 N"],
+        answerIndex: 0
+      }
+    ];
+  }
+
+  if (normalized.includes("basketball")) {
+    return [
+      {
+        q: "A 600g basketball is passed at 15 m/s. What force is required to catch and stop it in 0.1 seconds?",
+        options: ["90 N", "100 N", "60 N", "150 N"],
+        answerIndex: 0
+      },
+      {
+        q: "A player shoots a free throw at 45° with a velocity of 8 m/s. What is the maximum height reached above the release point? (g ≈ 9.8 m/s²)",
+        options: ["1.63 m", "3.26 m", "4.5 m", "0.8 m"],
+        answerIndex: 0
+      },
+      {
+        q: "If the distance to the hoop is 4.5m, how long does an 8 m/s horizontal pass take to reach the receiver?",
+        options: ["0.25 s", "0.56 s", "1 s", "2 s"],
+        answerIndex: 1
+      },
+      {
+        q: "A player bends their knees upon landing from a dunk. This reduces the force of impact by:",
+        options: ["Decreasing change in momentum", "Increasing time of impact", "Decreasing mass", "Increasing velocity"],
+        answerIndex: 1
+      },
+      {
+        q: "Backspin on a basketball shot increases its chances of bouncing softly into the hoop due to:",
+        options: ["Newton's Third Law", "Conservation of Angular Momentum", "Archimedes' Principle", "Coulomb's Law"],
+        answerIndex: 1
+      }
+    ];
+  }
+
+  // Fallback Generic Questions
+  return [
+    {
+      q: "A 1000 kg car is traveling at 25 m/s. What braking force is required to stop it in 5 seconds?",
+      options: ["2000 N", "5000 N", "12500 N", "25000 N"],
+      answerIndex: 1
+    },
+    {
+      q: "A block slides down a frictionless incline angled at 30° to the horizontal. What is its acceleration? (g ≈ 9.8 m/s²)",
+      options: ["4.9 m/s²", "9.8 m/s²", "8.5 m/s²", "0 m/s²"],
+      answerIndex: 0
+    },
+    {
+      q: "If the distance between two massive objects is tripled, the gravitational force between them becomes:",
+      options: ["1/3 as strong", "3 times stronger", "1/9 as strong", "9 times stronger"],
+      answerIndex: 2
+    },
+    {
+      q: "A 2 kg pendulum bob is released from a height of 0.5 m. What is its maximum velocity at the lowest point?",
+      options: ["3.1 m/s", "9.8 m/s", "1.5 m/s", "4.9 m/s"],
+      answerIndex: 0
+    },
+    {
+      q: "An astronaut weighing 800 N on Earth travels to a planet with twice the mass and twice the radius of Earth. What is his weight there?",
+      options: ["400 N", "800 N", "1600 N", "3200 N"],
+      answerIndex: 0
+    }
+  ];
+};
+
+export function ChallengeArena({ studentId: _studentId, studentInterest }: ChallengeArenaProps) {
   const [masteryScore, setMasteryScore] = useState(0);
   const [currentDifficulty, setCurrentDifficulty] = useState("EASY");
   
@@ -48,8 +144,8 @@ export function ChallengeArena({ studentId: _studentId }: ChallengeArenaProps) {
   
   const isChallengeMode = currentDifficulty === "CHALLENGE";
   
-  // If we run out of questions, just loop them for the demo
-  const questionData = CHALLENGE_QUESTIONS[activeQuestion % CHALLENGE_QUESTIONS.length];
+  const questions = getQuestionsForInterest(studentInterest);
+  const questionData = questions[activeQuestion % questions.length];
 
   const handleSimulateAnswer = (isCorrect: boolean) => {
     setIsSubmitting(true);

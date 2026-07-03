@@ -11,15 +11,18 @@ interface HypothesisLoggerProps {
   classId: string;
   topicId: string;
   initialTier?: StudentTier | null;
+  isLocked?: boolean;
 }
 
-export function HypothesisLogger({ studentId, classId: _classId, topicId, initialTier }: HypothesisLoggerProps) {
+export function HypothesisLogger({ studentId, classId: _classId, topicId, initialTier, isLocked = false }: HypothesisLoggerProps) {
   const [activeTier, setActiveTier] = useState<StudentTier | null>(initialTier || null);
   const [isLoading, setIsLoading] = useState<StudentTier | null>(null);
   const [successStatus, setSuccessStatus] = useState(false);
   const supabase = createClient();
 
   const handleUpdate = async (tier: StudentTier) => {
+    if (isLocked) return;
+    
     setIsLoading(tier);
     setSuccessStatus(false);
     
@@ -45,7 +48,7 @@ export function HypothesisLogger({ studentId, classId: _classId, topicId, initia
   };
 
   return (
-    <div className="flex items-center space-x-1.5 bg-slate-100 p-1.5 rounded-full border border-slate-200 w-max shadow-inner">
+    <div className={`flex items-center space-x-1.5 p-1.5 rounded-full border w-max shadow-inner ${isLocked ? "bg-slate-50 border-slate-200 opacity-80" : "bg-slate-100 border-slate-200"}`}>
       {(['C1', 'C2', 'C3'] as StudentTier[]).map((tier) => {
         const isActive = activeTier === tier;
         const isCurrentlyLoading = isLoading === tier;
@@ -60,11 +63,12 @@ export function HypothesisLogger({ studentId, classId: _classId, topicId, initia
           <button
             key={tier}
             onClick={() => handleUpdate(tier)}
-            disabled={isLoading !== null}
+            disabled={isLoading !== null || isLocked}
             className={cn(
               "relative px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border border-transparent",
               isActive ? activeColor : "text-slate-500 hover:text-slate-700 hover:bg-slate-200 bg-white shadow-sm border-slate-200",
-              isCurrentlyLoading ? "opacity-70 cursor-not-allowed" : ""
+              (isCurrentlyLoading || isLocked) ? "cursor-not-allowed" : "",
+              isCurrentlyLoading ? "opacity-70" : ""
             )}
           >
             {isCurrentlyLoading ? (

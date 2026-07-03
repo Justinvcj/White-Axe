@@ -14,13 +14,16 @@ export default async function ChallengePage() {
   // In production, non-C1 students would be redirected: redirect("/student");
   const { data: profile } = await supabase
     .from("student_profiles")
-    .select("current_tier")
+    .select("current_tier, current_interest")
     .eq("user_id", user.id)
     .single();
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-slate-50 py-12 px-4 relative z-20">
-      <ChallengeArena studentId={user.id} />
+      <ChallengeArena 
+        studentId={user.id} 
+        studentInterest={profile?.current_interest || ""}
+      />
     </div>
   );
 }
