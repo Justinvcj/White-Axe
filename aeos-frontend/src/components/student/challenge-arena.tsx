@@ -349,13 +349,20 @@ export function ChallengeArena({ studentId, studentInterest, isInitialAssessment
             ))}
           </div>
           
-          <div className="pt-6 flex justify-end">
+          <div className="pt-8 flex justify-between items-center">
+            <button
+              onClick={() => setActiveQuestion(Math.max(0, activeQuestion - 1))}
+              disabled={activeQuestion === 0 || isSubmitting}
+              className="text-slate-500 font-bold hover:text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors px-2"
+            >
+              Previous
+            </button>
             <button
               disabled={selectedOpt === null || isSubmitting}
               onClick={() => handleSimulateAnswer(selectedOpt === questionData.answerIndex)}
-              className="group relative flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white px-10 py-5 rounded-full font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-slate-200 overflow-hidden"
+              className="group relative flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 md:px-10 md:py-5 rounded-full font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-slate-200 overflow-hidden"
             >
-              <span className="relative z-10">{isSubmitting ? "Processing..." : "Submit Answer"}</span>
+              <span className="relative z-10">{isSubmitting ? "Processing..." : (activeQuestion === questions.length - 1 ? "Finish" : "Next")}</span>
               <ArrowRight className="w-6 h-6 relative z-10 group-hover:translate-x-1 transition-transform" />
               {isSubmitting && (
                 <motion.div 
