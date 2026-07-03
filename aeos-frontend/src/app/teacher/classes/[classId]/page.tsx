@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StudentCard } from "@/components/teacher/student-card";
 import { SubmitPhaseOne } from "@/components/teacher/submit-phase-one";
+import { forceCompleteAllPendingAssessments } from "@/app/actions/student-actions";
 
 export default async function ClassRosterPage({ params }: { params: Promise<{ classId: string }> }) {
   const resolvedParams = await params;
@@ -117,9 +118,17 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
                 </div>
               ))}
             </div>
-            <div className="text-right border-l border-slate-200 pl-6">
+            <div className="text-right border-l border-slate-200 pl-6 flex flex-col items-end">
               <span className="text-3xl font-black text-emerald-600">{completedCount}<span className="text-emerald-300 text-xl">/{totalCount}</span></span>
               <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-1">Completed</p>
+              
+              {completedCount < totalCount && (
+                <form action={forceCompleteAllPendingAssessments} className="mt-3">
+                  <button type="submit" className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-slate-200 transition-colors">
+                    Dev Override
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
