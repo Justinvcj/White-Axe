@@ -1,11 +1,33 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Zap, Target, BookOpen, ChevronRight, Activity } from "lucide-react";
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/glass-card";
+import { createClient } from "@/lib/supabase/client";
 
 export default function StudentDashboard() {
+  const [firstName, setFirstName] = useState<string>("Student");
+
+  useEffect(() => {
+    async function fetchUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("users")
+          .select("first_name")
+          .eq("id", user.id)
+          .single();
+        if (data?.first_name) {
+          setFirstName(data.first_name);
+        }
+      }
+    }
+    fetchUser();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen p-4 md:p-8 space-y-8 max-w-6xl mx-auto bg-slate-50">
       <motion.div
@@ -20,7 +42,7 @@ export default function StudentDashboard() {
         
         <div className="relative z-10">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-blue-900 mb-4">
-            Welcome back, Aarav!
+            Welcome back, {firstName}!
           </h1>
           <p className="text-lg md:text-xl text-blue-700 mb-8 max-w-2xl font-medium">
             Your knowledge base is tracking at <span className="font-black text-blue-600">84.2%</span> mastery. 

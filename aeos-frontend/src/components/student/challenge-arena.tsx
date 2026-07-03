@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Brain } from "lucide-react";
+import { Zap, Brain, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlassCard } from "@/components/ui/glass-card";
 
@@ -10,19 +10,50 @@ interface ChallengeArenaProps {
   studentId: string;
 }
 
+const CHALLENGE_QUESTIONS = [
+  {
+    q: "A 1000 kg car is traveling at 25 m/s. What braking force is required to stop it in 5 seconds?",
+    options: ["2000 N", "5000 N", "12500 N", "25000 N"],
+    answerIndex: 1
+  },
+  {
+    q: "A block slides down a frictionless incline angled at 30° to the horizontal. What is its acceleration? (g ≈ 9.8 m/s²)",
+    options: ["4.9 m/s²", "9.8 m/s²", "8.5 m/s²", "0 m/s²"],
+    answerIndex: 0
+  },
+  {
+    q: "If the distance between two massive objects is tripled, the gravitational force between them becomes:",
+    options: ["1/3 as strong", "3 times stronger", "1/9 as strong", "9 times stronger"],
+    answerIndex: 2
+  },
+  {
+    q: "A 2 kg pendulum bob is released from a height of 0.5 m. What is its maximum velocity at the lowest point?",
+    options: ["3.1 m/s", "9.8 m/s", "1.5 m/s", "4.9 m/s"],
+    answerIndex: 0
+  },
+  {
+    q: "An astronaut weighing 800 N on Earth travels to a planet with twice the mass and twice the radius of Earth. What is his weight there?",
+    options: ["400 N", "800 N", "1600 N", "3200 N"],
+    answerIndex: 0
+  }
+];
+
 export function ChallengeArena({ studentId: _studentId }: ChallengeArenaProps) {
   const [masteryScore, setMasteryScore] = useState(0);
   const [currentDifficulty, setCurrentDifficulty] = useState("EASY");
   
-  // Simulation states for frontend interaction demonstration
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeQuestion, setActiveQuestion] = useState(1);
+  const [activeQuestion, setActiveQuestion] = useState(0);
+  const [selectedOpt, setSelectedOpt] = useState<number | null>(null);
+  
   const isChallengeMode = currentDifficulty === "CHALLENGE";
+  
+  // If we run out of questions, just loop them for the demo
+  const questionData = CHALLENGE_QUESTIONS[activeQuestion % CHALLENGE_QUESTIONS.length];
 
   const handleSimulateAnswer = (isCorrect: boolean) => {
     setIsSubmitting(true);
     setTimeout(() => {
-      // Mock logic mimicking the AAE Engine's step-function
       let newScore = masteryScore;
       let diff = currentDifficulty;
 
@@ -41,6 +72,7 @@ export function ChallengeArena({ studentId: _studentId }: ChallengeArenaProps) {
       setMasteryScore(newScore);
       setCurrentDifficulty(diff);
       setActiveQuestion(q => q + 1);
+      setSelectedOpt(null);
       setIsSubmitting(false);
     }, 600);
   };
@@ -102,28 +134,41 @@ export function ChallengeArena({ studentId: _studentId }: ChallengeArenaProps) {
           className="space-y-8"
         >
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-10 min-h-[160px] flex flex-col justify-center shadow-inner">
-            <p className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Question {activeQuestion}</p>
+            <p className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Question {activeQuestion + 1}</p>
             <p className="text-xl md:text-2xl text-slate-800 font-bold leading-relaxed">
-              [Dynamic Math Injection - Node {activeQuestion}]
-              <br/><br/>
-              Calculate the localized trajectory given the active contextual parameters...
+              {questionData.q}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button 
-              onClick={() => handleSimulateAnswer(true)}
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-black border-none transition-colors shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {questionData.options.map((opt, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedOpt(i)}
+                className={`p-4 md:p-6 text-left rounded-2xl transition-all border-2 font-semibold text-lg ${
+                  selectedOpt === i 
+                    ? "bg-blue-50 border-blue-500 text-blue-900 shadow-sm" 
+                    : "bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-slate-50"
+                }`}
+              >
+                <span className={`inline-block w-8 h-8 rounded-full text-center leading-8 mr-4 transition-colors text-sm font-black ${
+                  selectedOpt === i ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-500"
+                }`}>
+                  {String.fromCharCode(65 + i)}
+                </span>
+                {opt}
+              </button>
+            ))}
+          </div>
+          
+          <div className="pt-4 flex justify-end">
+            <button
+              disabled={selectedOpt === null || isSubmitting}
+              onClick={() => handleSimulateAnswer(selectedOpt === questionData.answerIndex)}
+              className="bg-blue-600 text-white px-10 py-4 rounded-full font-black transition-all hover:bg-blue-700 disabled:opacity-50 disabled:bg-slate-300 hover:shadow-lg shadow-md hover:-translate-y-1 flex items-center space-x-2"
             >
-              <span>Simulate Correct Response</span>
-            </button>
-            <button 
-              onClick={() => handleSimulateAnswer(false)}
-              disabled={isSubmitting}
-              className="w-full bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 py-5 rounded-2xl font-bold border-2 border-slate-200 hover:border-rose-300 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center space-x-2"
-            >
-              <span>Simulate Incorrect Response</span>
+              <span>Submit Answer</span>
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </motion.div>
