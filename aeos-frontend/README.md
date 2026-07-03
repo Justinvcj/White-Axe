@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# White Axe (AEOS) - Adaptive Educational Operating System
 
-## Getting Started
+## ⚠️ The Problem: "One-Size-Fits-All" Education is Broken
+In a standard classroom, teachers are tasked with educating 30+ unique students simultaneously. The current system forces educators into a corner:
+1. **Static Assessments:** Every student takes the exact same test, regardless of whether they learn best through sports, technology, or literature. If a student doesn't care about the context of a physics question, they disengage.
+2. **Subjective Categorization:** Teachers are forced to manually categorize students (Advanced, Average, Needs Help) based on limited bandwidth and human intuition, which can accidentally introduce bias or overlook hidden potential.
+3. **Teacher Burnout:** A teacher simply does not have the time to sit down and rewrite 30 different personalized quizzes for 30 different students every single day. 
 
-First, run the development server:
+## 💡 The Solution: An AI-Driven Co-Pilot for the Classroom
+**White Axe (AEOS)** is an intelligent, hyper-adaptive Educational Operating System designed to augment teachers, not replace them. We built a platform where AI seamlessly handles the heavy lifting of personalization, allowing teachers to focus on human connection.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### How it Works (The Core Loop):
+1. **The Teacher's Hypothesis:** The teacher observes a student and logs a baseline hypothesis (e.g., "I think Emma is currently at a C3/Needs Help level in Physics"). 
+2. **Interest-Driven Contextualization:** The teacher notes that Emma loves *Cricket*.
+3. **The Adaptive Challenge Arena:** When Emma logs in to take her physics assessment, the AI instantly rewrites the entire test to teach physics through the lens of Cricket *(e.g., "A 150g cricket ball is bowled at 40 m/s...")*. 
+4. **The AI Comparison Engine:** Once the student finishes, our AI Engine calculates their true mastery score. It then actively compares the **Teacher's Hypothesis** against the **AI's Evaluation** to generate an unbiased, highly accurate **Optimal Final Tier** for the student.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+By merging human intuition with machine-speed personalization, we ensure no student is left behind, and no teacher is left overwhelmed.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠 Tech Stack
+- **Frontend & Backend Framework:** Next.js (App Router, React 18)
+- **Styling:** Tailwind CSS + Framer Motion (for fluid micro-animations)
+- **Database & Auth:** Supabase (PostgreSQL with strict Row Level Security)
+- **Deployment:** Vercel
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Running Locally
+1. Clone the repository and navigate into the frontend folder:
+   ```bash
+   cd aeos-frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up your `.env.local` file with your Supabase credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   ```
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
