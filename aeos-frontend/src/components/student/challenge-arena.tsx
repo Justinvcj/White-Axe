@@ -53,8 +53,8 @@ export function ChallengeArena({ studentId: _studentId }: ChallengeArenaProps) {
       }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
       className={cn(
-        "max-w-4xl w-full mx-auto rounded-[2rem] p-8 md:p-12 border",
-        isChallengeMode ? "shadow-[0_0_50px_rgba(16,185,129,0.15)]" : "shadow-xl"
+        "max-w-4xl w-full mx-auto rounded-[2rem] p-8 md:p-12 border bg-white",
+        isChallengeMode ? "shadow-2xl shadow-emerald-100" : "shadow-xl shadow-slate-200"
       )}
     >
       <header className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12 border-b border-slate-100 pb-6">
@@ -114,16 +114,16 @@ export function ChallengeArena({ studentId: _studentId }: ChallengeArenaProps) {
             <button 
               onClick={() => handleSimulateAnswer(true)}
               disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-black border-none transition-colors shadow-md hover:shadow-lg disabled:opacity-50"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl font-black border-none transition-colors shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
             >
-              Simulate Correct Response
+              <span>Simulate Correct Response</span>
             </button>
             <button 
               onClick={() => handleSimulateAnswer(false)}
               disabled={isSubmitting}
-              className="w-full bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 py-5 rounded-2xl font-bold border-2 border-slate-200 hover:border-rose-300 transition-colors shadow-sm disabled:opacity-50"
+              className="w-full bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 py-5 rounded-2xl font-bold border-2 border-slate-200 hover:border-rose-300 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center space-x-2"
             >
-              Simulate Incorrect Response
+              <span>Simulate Incorrect Response</span>
             </button>
           </div>
         </motion.div>
