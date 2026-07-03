@@ -32,7 +32,7 @@ export default function TeacherDashboard() {
   };
 
   const submitAssumptions = async () => {
-    // In production, this would call the AEOS AI Core BAM-E endpoint
+    // In production, this would call the White-Axe AI Core BAM-E endpoint
     alert("Assumptions submitted to BAM-E. Generating Initial Test...");
   };
 

@@ -100,7 +100,7 @@ export default function ParentDashboard() {
                   <Gamepad2 className="text-accent" /> Contextual Personalization
                 </h2>
                 <p className="text-muted-foreground mb-6 max-w-xl leading-relaxed">
-                  We&apos;ve noticed Diya might be distracted or disengaged lately. AEOS can customize her learning materials to bridge the gap. What is she currently obsessed with? (e.g., Cricket, K-Pop, Football, Video Games)
+                  We&apos;ve noticed Diya might be distracted or disengaged lately. White-Axe can customize her learning materials to bridge the gap. What is she currently obsessed with? (e.g., Cricket, K-Pop, Football, Video Games)
                 </p>
 
                 <div className="space-y-6">

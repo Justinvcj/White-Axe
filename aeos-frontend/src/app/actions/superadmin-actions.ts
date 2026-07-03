@@ -85,7 +85,7 @@ export async function createNewSchool(schoolName: string, domain: string, adminE
     return { success: true, schoolId, message: "Tenant successfully provisioned." };
 
   } catch (error: Error | unknown) {
-    console.error("[AEOS KERNEL] SuperAdmin Action Error:", error);
+    console.error("[White-Axe KERNEL] SuperAdmin Action Error:", error);
     const msg = error instanceof Error ? error.message : String(error);
     return { success: false, error: msg };
   }

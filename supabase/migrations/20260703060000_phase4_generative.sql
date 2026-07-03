@@ -1,5 +1,5 @@
 -- Phase 4: Fully Generative Engine Support
--- Adaptive AI Education Operating System (AEOS)
+-- Adaptive AI Education Operating System (White-Axe)
 
 -- 1. Add syllabus constraints to Topics to prevent AI Hallucinations
 ALTER TABLE public.topics

@@ -1,5 +1,5 @@
 -- Phase 1: Supabase Core & Security Layer
--- Adaptive AI Education Operating System (AEOS)
+-- Adaptive AI Education Operating System (White-Axe)
 
 -- 1. Enable UUID Extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

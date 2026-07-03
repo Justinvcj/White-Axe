@@ -128,7 +128,7 @@ export default function LoginPage() {
       >
         <div className="glass-panel-neon p-8">
           <div className="flex flex-col space-y-2 text-center mb-8">
-            <h1 className="text-3xl font-semibold tracking-tight text-white">AEOS System Login</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-white">White-Axe System Login</h1>
             <p className="text-sm text-slate-400">
               Enter your credentials to access the Adaptive AI Education Operating System.
             </p>

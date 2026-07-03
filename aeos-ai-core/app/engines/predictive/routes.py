@@ -39,7 +39,7 @@ async def calculate_student_risk_profile(payload: RiskPayload):
                 for r in risk_vectors:
                     if r["failure_probability_percentage"] > 75.0:
                         # Emulating the proactive warning push for admin dashboard rendering
-                        print(f"[AEOS SECURITY] HIGH STRUCTURAL RISK ISOLATED: Topic {r['target_topic_id']} at {r['failure_probability_percentage']}% future failure trajectory.")
+                        print(f"[White-Axe SECURITY] HIGH STRUCTURAL RISK ISOLATED: Topic {r['target_topic_id']} at {r['failure_probability_percentage']}% future failure trajectory.")
             except Exception as event_err:
                 # Fatal exception blocks are prevented during alert dispatch failures
                 print(f"Non-fatal error logging internal system notification: {event_err}")

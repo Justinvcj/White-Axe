@@ -1,5 +1,5 @@
 -- Phase 2: Adaptive Flow Updates
--- Adaptive AI Education Operating System (AEOS)
+-- Adaptive AI Education Operating System (White-Axe)
 
 -- 1. Topics Table Updates
 -- Adding time constraints per the syllabus requirements

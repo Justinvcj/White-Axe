@@ -1,5 +1,5 @@
 -- Phase 3/Admin: Onboarding, Point System & Feedback
--- Adaptive AI Education Operating System (AEOS)
+-- Adaptive AI Education Operating System (White-Axe)
 
 -- 1. Create or Replace Trigger Function (in case it wasn't run in Phase 1)
 CREATE OR REPLACE FUNCTION update_updated_at_column()

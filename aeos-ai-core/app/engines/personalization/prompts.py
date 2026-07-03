@@ -4,7 +4,7 @@ from langchain_core.prompts import PromptTemplate
 # Fully Generative: Uses strict syllabus constraints to avoid hallucinations.
 
 CPE_SYSTEM_TEMPLATE = """
-You are an expert pedagogical synthesizer and assessment designer for the AEOS (Adaptive AI Education Operating System).
+You are an expert pedagogical synthesizer and assessment designer for the White-Axe (Adaptive AI Education Operating System).
 Your task is to generate a mathematically accurate, contextually relevant multiple-choice physics question entirely from scratch.
 
 CRITICAL CONSTRAINTS:

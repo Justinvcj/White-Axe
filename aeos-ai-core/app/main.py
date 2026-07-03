@@ -6,9 +6,9 @@ from app.engines.adaptive.routes import router as adaptive_router
 from app.engines.predictive.routes import router as predictive_router
 from app.engines.revision.routes import router as revision_router
 
-# Initialize the AEOS FastApi Microservice
+# Initialize the White-Axe FastApi Microservice
 app = FastAPI(
-    title="AEOS AI Core",
+    title="White-Axe AI Core",
     description="Python 3.11 Inference Layer running the BAM-E, CPE, AAE, and Predictive Engines",
     version="1.0.0"
 )
@@ -58,4 +58,4 @@ async def health_check():
     """
     Standard Kubernetes/Docker health check endpoint.
     """
-    return {"status": "AEOS AI Core Online"}
+    return {"status": "White-Axe AI Core Online"}

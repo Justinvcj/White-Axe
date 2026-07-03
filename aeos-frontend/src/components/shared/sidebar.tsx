@@ -54,7 +54,7 @@ export default function Sidebar({ role }: { role: UserRole }) {
           <div className="w-8 h-8 bg-blue-600 rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.5)] flex items-center justify-center">
             <Activity className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold tracking-wider text-white">AEOS</span>
+          <span className="text-xl font-bold tracking-wider text-white">White-Axe</span>
         </div>
       </div>
 

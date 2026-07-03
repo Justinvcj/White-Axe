@@ -53,7 +53,7 @@ export default function Navbar({ role }: { role: UserRole }) {
           <div className="w-10 h-10 bg-blue-600 rounded-xl shadow-md flex items-center justify-center">
             <Activity className="w-6 h-6 text-white" />
           </div>
-          <span className="text-2xl font-black tracking-tight text-blue-900">AEOS</span>
+          <span className="text-2xl font-black tracking-tight text-blue-900">White-Axe</span>
           <span className="ml-4 px-2 py-1 bg-slate-100 text-slate-500 rounded-md text-xs font-bold uppercase tracking-wider">
             {role}
           </span>
@@ -141,7 +141,7 @@ export default function Navbar({ role }: { role: UserRole }) {
           <div className="w-8 h-8 bg-blue-600 rounded-lg shadow-sm flex items-center justify-center">
             <Activity className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-black tracking-tight text-blue-900">AEOS</span>
+          <span className="text-xl font-black tracking-tight text-blue-900">White-Axe</span>
         </div>
         <span className="px-2 py-1 bg-slate-100 text-slate-500 rounded-md text-[10px] font-bold uppercase tracking-wider">
           {role}
