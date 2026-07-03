@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-sm: calc(var(--radius) - 8px);
+}
+
+@layer base {
+  :root {
+    /* Warm & Light EdTech Theme (K-12 Friendly) */
+    --background: 0 0% 98%;      /* Soft off-white */
+    --foreground: 240 10% 20%;   /* Deep slate for highly readable text */
+    
+    --card: 0 0% 100%;           /* Pure white for cards */
+    --card-foreground: 240 10% 20%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 20%;
+    
+    --primary: 212 100% 48%;     /* Vibrant Blue for main actions */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 35 95% 55%;     /* Warm Orange/Amber for fun engaging elements */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 210 20% 94%;        /* Soft blue-gray for muted backgrounds */
+    --muted-foreground: 240 5% 45%;
+    
+    --accent: 142 70% 45%;       /* Engaging Emerald Green */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 348 83% 55%;  /* Clear but soft Red */
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 214 32% 91%;       /* Soft borders */
+    --input: 214 32% 91%;
+    --ring: 212 100% 48%;
+    --radius: 1.5rem;            /* Extremely rounded corners for K-12 feel */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
