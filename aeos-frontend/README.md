@@ -1,7 +1,8 @@
 # White Axe (AEOS) - Adaptive Educational Operating System
 
+🌍 **Live Demo:** [https://white-axe.vercel.app/](https://white-axe.vercel.app/)
+
 ## ⚠️ The Problem: "One-Size-Fits-All" Education is Broken
-In a standard classroom, teachers are tasked with educating 30+ unique students simultaneously. The current system forces educators into a corner:
 1. **Static Assessments:** Every student takes the exact same test, regardless of whether they learn best through sports, technology, or literature. If a student doesn't care about the context of a physics question, they disengage.
 2. **Subjective Categorization:** Teachers are forced to manually categorize students (Advanced, Average, Needs Help) based on limited bandwidth and human intuition, which can accidentally introduce bias or overlook hidden potential.
 3. **Teacher Burnout:** A teacher simply does not have the time to sit down and rewrite 30 different personalized quizzes for 30 different students every single day. 
