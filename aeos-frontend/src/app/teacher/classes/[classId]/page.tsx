@@ -1,4 +1,4 @@
-import { BrainCircuit } from "lucide-react";
+import { BrainCircuit, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StudentCard } from "@/components/teacher/student-card";
@@ -17,7 +17,7 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
     name: "Structural Foundations & Kinematics"
   };
 
-  // Fetch real students from the database - STRICTLY LIMIT 10
+  // Fetch real students from the database - STRICTLY LIMIT 4
   const { data: dbStudents } = await supabase
     .from("users")
     .select(`
@@ -25,12 +25,14 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
       student_profiles (
         current_tier,
         overall_mastery_score,
-        current_interest
+        current_interest,
+        initial_assessment_completed,
+        granular_performance
       )
     `)
     .eq("role", "student")
     .order("first_name", { ascending: true })
-    .limit(10);
+    .limit(4);
 
   const students = dbStudents?.map((s: any) => ({
     id: s.id,
@@ -39,10 +41,15 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
     mastery: s.student_profiles?.[0]?.overall_mastery_score || 0,
     initialTier: s.student_profiles?.[0]?.current_tier || null,
     interest: s.student_profiles?.[0]?.current_interest || "",
+    isCompleted: s.student_profiles?.[0]?.initial_assessment_completed || false,
+    granularStats: s.student_profiles?.[0]?.granular_performance || null,
     subject: "AP Physics C",
     assignedTeacher: "Dr. Feynman",
     currentGrade: "11th Grade"
   })) || [];
+
+  const completedCount = students.filter(s => s.isCompleted).length;
+  const totalCount = students.length;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-4 md:p-8">
@@ -68,18 +75,38 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
         </div>
       </header>
       
-      {/* Phase 1 Assessment Lock & Release Status Banner */}
-      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center space-x-3">
-          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-          <div>
-            <h4 className="text-emerald-800 font-bold text-sm">Phase 1 Initial Assessment: Active</h4>
-            <p className="text-emerald-600 text-xs font-medium">Waiting for all 10 students to complete before unlocking Comparison Results.</p>
+      {/* Phase 1 Assessment Dashboard with Ticks */}
+      <div className="bg-white border border-emerald-200 rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center border-4 border-emerald-100">
+              <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+            </div>
+            <div>
+              <h4 className="text-slate-800 font-bold text-lg">Initial Assessment Status</h4>
+              <p className="text-slate-500 text-sm font-medium">Waiting for all {totalCount} students to complete before unlocking Comparison Results.</p>
+            </div>
           </div>
-        </div>
-        <div className="text-right">
-          <span className="text-2xl font-black text-emerald-700">7<span className="text-emerald-400 text-lg">/10</span></span>
-          <p className="text-[10px] uppercase tracking-wider text-emerald-600 font-bold">Completed</p>
+          <div className="flex items-center space-x-6">
+            <div className="flex space-x-2">
+              {students.map((s) => (
+                <div key={s.id} className="flex flex-col items-center group relative">
+                  {s.isCompleted ? (
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                  ) : (
+                    <Circle className="w-6 h-6 text-slate-200" />
+                  )}
+                  <div className="absolute top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10 pointer-events-none">
+                    {s.first_name}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-right border-l border-slate-200 pl-6">
+              <span className="text-3xl font-black text-emerald-600">{completedCount}<span className="text-emerald-300 text-xl">/{totalCount}</span></span>
+              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-1">Completed</p>
+            </div>
+          </div>
         </div>
       </div>
 

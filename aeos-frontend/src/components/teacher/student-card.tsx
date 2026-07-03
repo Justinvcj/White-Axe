@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/glass-card";
-import { GraduationCap, MapPin, Sparkles, Edit2, Check, Lock, ChevronDown, Activity, BookOpen, AlertTriangle } from "lucide-react";
+import { GraduationCap, MapPin, Sparkles, Edit2, Check, Lock, ChevronDown, Activity, BookOpen, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { HypothesisLogger } from "./hypothesis-logger";
 import { StudentTier } from "@/lib/types/database";
 import { createClient } from "@/lib/supabase/client";
@@ -13,7 +13,7 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
   const [isSaving, setIsSaving] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   
-  // Phase 1 Lock logic (Simulated global state)
+  // Phase 1 Lock logic
   const isPhase1Locked = true; // In the demo, we assume the teacher's hypothesis gets locked after initial entry.
 
   const handleSaveInterest = async () => {
@@ -25,7 +25,7 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
   };
 
   return (
-    <GlassCard className="flex flex-col p-0 overflow-hidden">
+    <GlassCard className="flex flex-col p-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <div className="p-6 flex flex-col sm:flex-row justify-between">
         <div className="flex-1">
           <div className="flex items-center space-x-4 mb-4">
@@ -33,11 +33,16 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
               <span className="text-blue-600 font-bold text-lg">{student.first_name?.[0] || ""}{student.last_name?.[0] || ""}</span>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
-                {student.first_name} {student.last_name}
-              </h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                  {student.first_name} {student.last_name}
+                </h3>
+                {student.isCompleted && (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" title="Completed Initial Assessment" />
+                )}
+              </div>
               <div className="flex items-center space-x-2 mt-1">
-                <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
                   AI Score: {student.mastery}%
                 </span>
                 <span className="text-xs text-slate-400 font-medium">(Updates continuously)</span>
@@ -59,7 +64,7 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
                     className="flex-1 bg-white border border-slate-300 rounded px-2 py-1 text-sm outline-none focus:border-orange-400"
                     placeholder="e.g. Space, Cricket..."
                   />
-                  <button onClick={handleSaveInterest} disabled={isSaving} className="bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 transition">
+                  <button onClick={handleSaveInterest} disabled={isSaving} className="bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 transition shadow-sm">
                     <Check className="w-4 h-4" />
                   </button>
                 </div>
@@ -101,7 +106,7 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
           
           <button 
             onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
-            className="mt-4 flex items-center justify-center space-x-1.5 w-full bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 py-2 rounded-lg text-xs font-semibold transition"
+            className="mt-4 flex items-center justify-center space-x-1.5 w-full bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 py-2 rounded-lg text-xs font-semibold transition shadow-sm"
           >
             <Activity className="w-3.5 h-3.5" />
             <span>View Granular Analytics</span>
@@ -117,34 +122,41 @@ export function StudentCard({ student, classId, activeTopicId }: { student: any,
             <BookOpen className="w-4 h-4 text-blue-500 mr-2" /> 
             Module Performance Breakdown
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-600">Day 1 (Kinematics)</span>
-                <span className="font-bold text-emerald-600">85%</span>
+          
+          {student.granularStats && student.granularStats.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                {student.granularStats.map((stat: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-center text-sm border-b border-slate-200 pb-2 last:border-0 last:pb-0">
+                    <span className="text-slate-600 font-medium">{stat.day}</span>
+                    <span className={`font-bold ${stat.score >= 80 ? 'text-emerald-600' : stat.score >= 60 ? 'text-amber-600' : 'text-rose-600'}`}>
+                      {stat.score}%
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-600">Day 2 (Newton's Laws)</span>
-                <span className="font-bold text-emerald-600">92%</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-600">Day 3 (Friction)</span>
-                <span className="font-bold text-amber-600">74%</span>
+              <div className="bg-white border border-rose-100 rounded-xl p-4 shadow-sm">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-rose-500 mb-2 flex items-center">
+                  <AlertTriangle className="w-3.5 h-3.5 mr-1" />
+                  Identified Weak Area
+                </h5>
+                <p className="text-sm text-slate-700 font-medium leading-relaxed">
+                  Struggling with <span className="font-bold text-rose-600">
+                    {student.granularStats[student.granularStats.length - 1]?.weak_area || "General Concepts"}
+                  </span>.
+                </p>
+                <p className="text-xs text-slate-500 mt-3 p-2 bg-slate-50 rounded border border-slate-100">
+                  AI recommends intervention using {interest ? `"${interest}"` : "personalized"} examples.
+                </p>
               </div>
             </div>
-            <div className="bg-white border border-rose-100 rounded-lg p-4">
-              <h5 className="text-xs font-bold uppercase tracking-wider text-rose-500 mb-2 flex items-center">
-                <AlertTriangle className="w-3.5 h-3.5 mr-1" />
-                Identified Weak Area
-              </h5>
-              <p className="text-sm text-slate-700 font-medium">
-                Struggling with <span className="font-bold text-rose-600">Static vs. Kinetic Friction Coefficients</span>.
-              </p>
-              <p className="text-xs text-slate-500 mt-2">
-                AI recommends intervention using {interest ? interest : "their interests"} examples.
-              </p>
+          ) : (
+            <div className="text-center py-6 text-slate-400 bg-white border border-slate-200 rounded-xl border-dashed">
+              <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-medium">No granular performance data generated yet.</p>
+              <p className="text-xs mt-1">Student must complete further assessments.</p>
             </div>
-          </div>
+          )}
         </div>
       )}
     </GlassCard>
