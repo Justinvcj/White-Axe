@@ -17,7 +17,7 @@ const ROLE_LINKS: Record<string, { label: string; href: string; icon: any }[]> =
   ],
   Student: [
     { label: "Learning Path", href: "/student", icon: Activity },
-    { label: "Initial Assessment", href: "/student/dashboard", icon: Target },
+    { label: "Initial Assessment", href: "/student/challenge", icon: Target },
   ],
   Admin: [
     { label: "Command Center", href: "/admin", icon: LayoutDashboard },
