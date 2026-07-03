@@ -19,7 +19,7 @@ export default async function ChallengePage() {
     .single();
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-slate-50 flex flex-col justify-center py-12 px-4 relative z-20">
+    <div className="min-h-[calc(100vh-80px)] bg-slate-50 py-12 px-4 relative z-20">
       <ChallengeArena studentId={user.id} />
     </div>
   );
