@@ -12,7 +12,7 @@ export async function completeInitialAssessment(studentId: string, mastery: numb
 
   const { error } = await supabase.from("student_profiles").update({
     initial_assessment_completed: true,
-    mastery: mastery
+    overall_mastery_score: mastery
   }).eq("user_id", studentId);
 
   if (error) {
@@ -31,7 +31,7 @@ export async function forceCompleteAllPendingAssessments() {
 
   const { error } = await supabase.from("student_profiles").update({
     initial_assessment_completed: true,
-    mastery: 85 // Mock a decent mastery score so the AI engine has data
+    overall_mastery_score: 85 // Mock a decent mastery score so the AI engine has data
   }).eq("initial_assessment_completed", false);
 
   if (error) {
