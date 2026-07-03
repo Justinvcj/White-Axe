@@ -17,11 +17,11 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
     name: "Structural Foundations & Kinematics"
   };
 
-  // Fetch real students from the database - STRICTLY LIMIT 4
+  // Fetch our 4 distinct curated demo students
   const { data: dbStudents } = await supabase
     .from("users")
     .select(`
-      id, first_name, last_name,
+      id, first_name, last_name, email,
       student_profiles (
         current_tier,
         overall_mastery_score,
@@ -30,9 +30,13 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
         granular_performance
       )
     `)
-    .eq("role", "student")
-    .order("first_name", { ascending: true })
-    .limit(4);
+    .in("email", [
+      "student1@school.edu",
+      "student2@school.edu",
+      "student3@school.edu",
+      "student4@school.edu"
+    ])
+    .order("first_name", { ascending: true });
 
   const students = dbStudents?.map((s: any) => ({
     id: s.id,
