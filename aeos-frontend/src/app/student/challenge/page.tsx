@@ -14,7 +14,7 @@ export default async function ChallengePage() {
   // In production, non-C1 students would be redirected: redirect("/student");
   const { data: profile } = await supabase
     .from("student_profiles")
-    .select("current_tier, current_interest")
+    .select("current_tier, current_interest, initial_assessment_completed")
     .eq("user_id", user.id)
     .single();
 
@@ -23,6 +23,7 @@ export default async function ChallengePage() {
       <ChallengeArena 
         studentId={user.id} 
         studentInterest={profile?.current_interest || ""}
+        isInitialAssessment={!profile?.initial_assessment_completed}
       />
     </div>
   );
