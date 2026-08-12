@@ -4,7 +4,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Activity, Target, Gamepad2, Sparkles, CheckCircle2 } from "lucide-react";
 
+import { updateStudentInterest } from "@/app/actions/student-actions";
+
 const MOCK_STUDENT = {
+  id: "66666666-6666-6666-6666-666666666662",
   name: "Diya Sharma",
   grade: 10,
   recentTopic: "Newton's Laws",
@@ -16,16 +19,21 @@ export default function ParentDashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!interest.trim()) return;
     
     setIsSubmitting(true);
-    // Mocking an API call to Supabase to insert into `parent_feedbacks`
-    setTimeout(() => {
+    try {
+      const success = await updateStudentInterest(MOCK_STUDENT.id, interest);
+      if (success) {
+        setSubmitted(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
       setIsSubmitting(false);
-      setSubmitted(true);
-    }, 1500);
+    }
   };
 
   return (

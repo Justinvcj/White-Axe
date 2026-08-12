@@ -6,8 +6,8 @@ import { revalidatePath } from "next/cache";
 export async function completeInitialAssessment(studentId: string, mastery: number) {
   // Use service role to bypass restrictive RLS policies for the MVP demo
   const supabase = createClient(
-    "https://gjiqhbwvdmsrtsmvysbe.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqaXFoYnd2ZG1zcnRzbXZ5c2JlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzAxMjQ2NiwiZXhwIjoyMDk4NTg4NDY2fQ.UBFWAk-srpcrF2KQX0FJf87D9qn_1pcgnce-PXJ3C7w"
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
   const { error } = await supabase.from("student_profiles").update({
@@ -25,8 +25,8 @@ export async function completeInitialAssessment(studentId: string, mastery: numb
 
 export async function forceCompleteAllPendingAssessments() {
   const supabase = createClient(
-    "https://gjiqhbwvdmsrtsmvysbe.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqaXFoYnd2ZG1zcnRzbXZ5c2JlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzAxMjQ2NiwiZXhwIjoyMDk4NTg4NDY2fQ.UBFWAk-srpcrF2KQX0FJf87D9qn_1pcgnce-PXJ3C7w"
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
   const { error } = await supabase.from("student_profiles").update({
@@ -40,5 +40,27 @@ export async function forceCompleteAllPendingAssessments() {
   }
   
   revalidatePath("/teacher/classes/[classId]", "page");
+  return true;
+}
+
+export async function updateStudentInterest(studentId: string, interest: string) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { error } = await supabase.from("student_profiles").update({
+    current_interest: interest
+  }).eq("user_id", studentId);
+
+  if (error) {
+    console.error("Failed to update student interest:", error);
+    return false;
+  }
+
+  // Revalidate parent and student dashboards
+  revalidatePath("/parent/dashboard");
+  revalidatePath("/student/assessment/[topicId]", "page");
+  
   return true;
 }

@@ -1,39 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Target, ArrowRight, CheckCircle, BrainCircuit, Rocket } from "lucide-react";
+import { Target, ArrowRight, CheckCircle, BrainCircuit, Rocket, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/glass-card";
-
-const REVISION_TOPICS = [
-  "Newton's First Law - Inertia",
-  "Vector Addition",
-  "Kinematic Equations - Free Fall"
-];
-
-// Mock Revision Questions
-const QUESTIONS = [
-  {
-    topic: "Newton's First Law - Inertia",
-    q: "If a spacecraft is moving at a constant velocity in deep space where there is no friction or gravity, what force is needed to keep it moving?",
-    options: ["A constant forward force", "No force is needed", "A force equal to its mass", "A force equal to its velocity"],
-    answerIndex: 1
-  },
-  {
-    topic: "Vector Addition",
-    q: "A boat travels 3 m/s East and the river flows 4 m/s North. What is the magnitude of the boat's resultant velocity?",
-    options: ["1 m/s", "5 m/s", "7 m/s", "12 m/s"],
-    answerIndex: 1
-  },
-  {
-    topic: "Kinematic Equations - Free Fall",
-    q: "An object is dropped from rest. How far does it fall in 2 seconds? (use g = 10 m/s²)",
-    options: ["10 m", "20 m", "30 m", "40 m"],
-    answerIndex: 1
-  }
-];
+import { createClient } from "@/lib/supabase/client";
 
 export default function DailyRevisionPage() {
   const [activeView, setActiveView] = useState<"intro" | "test" | "complete">("intro");
@@ -42,14 +15,58 @@ export default function DailyRevisionPage() {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const router = useRouter();
 
+  // Dynamic Data States
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
+  const [revisionData, setRevisionData] = useState<{topics: string[], questions: any[]}>({ topics: [], questions: [] });
+  
+  const handleStartPractice = async () => {
+    setIsSynthesizing(true);
+    
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      let tier = "C2";
+      let interest = "General Science";
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from("student_profiles")
+          .select("current_tier, current_interest")
+          .eq("user_id", user.id)
+          .single();
+        if (profile) {
+          tier = profile.current_tier;
+          interest = profile.current_interest || "General Science";
+        }
+      }
+
+      const res = await fetch("/api/ai/generate-revision", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier, interest })
+      });
+      
+      if (res.ok) {
+        const result = await res.json();
+        setRevisionData(result.data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSynthesizing(false);
+      setActiveView("test");
+    }
+  };
+
   const handleNext = () => {
     if (selectedOpt === null) return;
     
-    if (selectedOpt === QUESTIONS[currentQIndex].answerIndex) {
+    if (selectedOpt === revisionData.questions[currentQIndex].answerIndex) {
       setCorrectAnswers(c => c + 1);
     }
 
-    if (currentQIndex < QUESTIONS.length - 1) {
+    if (currentQIndex < revisionData.questions.length - 1) {
       setCurrentQIndex(currentQIndex + 1);
       setSelectedOpt(null);
     } else {
@@ -69,7 +86,7 @@ export default function DailyRevisionPage() {
         <AnimatePresence mode="wait">
           
           {/* Intro View */}
-          {activeView === "intro" && (
+          {activeView === "intro" && !isSynthesizing && (
             <motion.div
               key="intro"
               initial={{ opacity: 0, y: 20 }}
@@ -83,31 +100,40 @@ export default function DailyRevisionPage() {
                 </div>
                 <h1 className="text-3xl md:text-4xl font-black text-slate-800 mb-4">Daily Practice</h1>
                 <p className="text-slate-600 text-lg mb-8 font-medium leading-relaxed">
-                  The AI has prepared 3 quick questions based on your recent activity to keep your memory sharp!
+                  Our Spaced Repetition Engine has identified past weaknesses. Click below to generate custom questions targeted to your latency!
                 </p>
-                
-                <div className="space-y-3 mb-8 text-left max-w-sm mx-auto">
-                  {REVISION_TOPICS.map((topic, i) => (
-                    <div key={i} className="flex items-center space-x-3 bg-orange-50 p-3 rounded-xl border border-orange-100">
-                      <div className="w-2 h-2 rounded-full bg-orange-500" />
-                      <span className="text-slate-700 font-bold">{topic}</span>
-                    </div>
-                  ))}
-                </div>
 
                 <button
-                  onClick={() => setActiveView("test")}
+                  onClick={handleStartPractice}
                   className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-10 py-4 rounded-full font-black transition-all shadow-md shadow-orange-200 hover:shadow-lg flex items-center justify-center space-x-2 group mx-auto"
                 >
-                  <span>Start Practice!</span>
+                  <span>Synthesize Revision Block</span>
                   <Rocket className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </button>
               </GlassCard>
             </motion.div>
           )}
 
+          {/* Loading View */}
+          {activeView === "intro" && isSynthesizing && (
+            <motion.div 
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center text-center max-w-md"
+            >
+              <motion.div 
+                animate={{ rotate: 360 }} 
+                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                className="w-24 h-24 border-4 border-orange-200 border-t-orange-500 rounded-full mb-8"
+              />
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Analyzing Latency Patterns</h2>
+              <p className="text-slate-500">Retrieving historically weak topics and merging with your personal interests...</p>
+            </motion.div>
+          )}
+
           {/* Test View */}
-          {activeView === "test" && (
+          {activeView === "test" && revisionData.questions.length > 0 && (
             <motion.div
               key="test"
               initial={{ opacity: 0, x: 20 }}
@@ -119,10 +145,10 @@ export default function DailyRevisionPage() {
                 <div className="flex justify-between items-end mb-4">
                   <div>
                     <p className="text-sm text-orange-500 font-black uppercase tracking-wider mb-1">Targeting Topic:</p>
-                    <h2 className="text-2xl font-black text-slate-800">{QUESTIONS[currentQIndex].topic}</h2>
+                    <h2 className="text-2xl font-black text-slate-800">{revisionData.questions[currentQIndex].topic}</h2>
                   </div>
                   <div className="text-slate-600 font-bold text-sm bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
-                    {currentQIndex + 1} / {QUESTIONS.length}
+                    {currentQIndex + 1} / {revisionData.questions.length}
                   </div>
                 </div>
                 
@@ -130,19 +156,19 @@ export default function DailyRevisionPage() {
                 <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden shadow-inner">
                   <motion.div 
                     className="h-full bg-orange-500"
-                    initial={{ width: `${(currentQIndex / QUESTIONS.length) * 100}%` }}
-                    animate={{ width: `${((currentQIndex + 1) / QUESTIONS.length) * 100}%` }}
+                    initial={{ width: `${(currentQIndex / revisionData.questions.length) * 100}%` }}
+                    animate={{ width: `${((currentQIndex + 1) / revisionData.questions.length) * 100}%` }}
                   />
                 </div>
               </div>
 
               <GlassCard className="p-6 md:p-10 border-slate-200 shadow-lg">
                 <h3 className="text-xl md:text-2xl text-slate-900 font-black leading-relaxed mb-8">
-                  {QUESTIONS[currentQIndex].q}
+                  {revisionData.questions[currentQIndex].q}
                 </h3>
                 
                 <div className="grid grid-cols-1 gap-4 mb-8">
-                  {QUESTIONS[currentQIndex].options.map((opt, i) => (
+                  {revisionData.questions[currentQIndex].options.map((opt: string, i: number) => (
                     <button
                       key={i}
                       onClick={() => setSelectedOpt(i)}
@@ -189,7 +215,7 @@ export default function DailyRevisionPage() {
                 </div>
                 <h2 className="text-3xl font-black text-slate-800 mb-2">Practice Complete!</h2>
                 <p className="text-slate-600 mb-8 font-medium text-lg">
-                  You successfully answered {correctAnswers} out of {QUESTIONS.length} questions. Great job!
+                  You successfully answered {correctAnswers} out of {revisionData.questions.length} questions. Great job!
                 </p>
 
                 <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 mb-8 inline-block text-left shadow-sm">

@@ -1,9 +1,23 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from app.database import supabase
 from app.engines.predictive.algorithms import predict_knowledge_decay
+from .generator import generate_spaced_repetition_quiz
 import datetime
 
 router = APIRouter()
+
+class RevisionRequest(BaseModel):
+    tier: str
+    interest: str
+
+@router.post("/generate")
+def generate_revision(req: RevisionRequest):
+    data = generate_spaced_repetition_quiz(
+        tier=req.tier,
+        interest=req.interest
+    )
+    return {"status": "success", "data": data}
 
 @router.get("/generate-daily-queue/{student_id}")
 async def generate_daily_queue(student_id: str):

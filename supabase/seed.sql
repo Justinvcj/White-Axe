@@ -32,11 +32,16 @@ ON CONFLICT (id) DO NOTHING;
 -- 6. Create Dummy Users (Assuming Auth is handled, we just mock the public.users table)
 INSERT INTO public.users (id, school_id, role, first_name, last_name, email)
 VALUES 
-('66666666-6666-6666-6666-666666666661', '11111111-1111-1111-1111-111111111111', 'Teacher', 'Priya', 'Sharma', 'teacher@gth.edu'),
-('66666666-6666-6666-6666-666666666662', '11111111-1111-1111-1111-111111111111', 'Student', 'Diya', 'Sharma', 'student@gth.edu')
+('66666666-6666-6666-6666-666666666661', '11111111-1111-1111-1111-111111111111', 'Teacher', 'Priya', 'Sharma', 'priya.sharma@gth.edu'),
+('66666666-6666-6666-6666-666666666662', '11111111-1111-1111-1111-111111111111', 'Student', 'Diya', 'Sharma', 'diya.sharma@gth.edu')
 ON CONFLICT (id) DO NOTHING;
 
--- 7. Student Profile with Context
+-- 7. Enroll Student in Class
+INSERT INTO public.enrollments (user_id, class_id)
+VALUES ('66666666-6666-6666-6666-666666666662', '33333333-3333-3333-3333-333333333333')
+ON CONFLICT DO NOTHING;
+
+-- 8. Student Profile with Context
 INSERT INTO public.student_profiles (user_id, current_tier, current_interest)
 VALUES ('66666666-6666-6666-6666-666666666662', 'C2', 'Cricket and MS Dhoni')
 ON CONFLICT (user_id) DO NOTHING;

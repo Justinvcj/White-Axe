@@ -1,31 +1,44 @@
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Users, BookOpen, ArrowRight } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export default function ClassesIndexPage() {
-  const mockClasses = [
-    {
-      id: "physics-101",
-      name: "AP Physics C: Mechanics",
-      period: "Period 1",
-      studentCount: 32,
-      activeTopic: "Introduction to Kinematics"
-    },
-    {
-      id: "calc-201",
-      name: "AP Calculus BC",
-      period: "Period 3",
-      studentCount: 28,
-      activeTopic: "Limits and Continuity"
-    },
-    {
-      id: "physics-102",
-      name: "Honors Physics",
-      period: "Period 5",
-      studentCount: 25,
-      activeTopic: "Newton's Laws of Motion"
-    }
-  ];
+export default async function ClassesIndexPage() {
+  const supabase = await createClient();
+  
+  // Get the logged-in teacher's school ID
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData?.user?.id;
+  
+  let schoolId = null;
+  if (userId) {
+    const { data: teacherData } = await supabase
+      .from('users')
+      .select('school_id')
+      .eq('id', userId)
+      .single();
+    schoolId = teacherData?.school_id;
+  }
+
+  // Fetch real classes from the database
+  let query = supabase
+    .from("classes")
+    .select("id, name, grade_level")
+    .order("name", { ascending: true });
+    
+  if (schoolId) {
+    query = query.eq('school_id', schoolId);
+  }
+
+  const { data: dbClasses } = await query;
+  
+  const classes = dbClasses?.map(c => ({
+    id: c.id,
+    name: c.name,
+    period: `Grade ${c.grade_level}`,
+    studentCount: "Active", // Cannot easily query this without enrollments table
+    activeTopic: "Structural Foundations & Kinematics" // Mock topic for now
+  })) || [];
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-4 md:p-8">

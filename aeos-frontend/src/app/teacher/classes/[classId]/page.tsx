@@ -1,4 +1,4 @@
-import { BrainCircuit, CheckCircle2, Circle } from "lucide-react";
+import { BrainCircuit, CheckCircle2, Circle, Zap, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StudentCard } from "@/components/teacher/student-card";
@@ -19,8 +19,22 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
     name: "Structural Foundations & Kinematics"
   };
 
-  // Fetch our 4 distinct curated demo students
-  const { data: dbStudents } = await supabase
+  // Get the logged-in teacher's school ID
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData?.user?.id;
+  
+  let schoolId = null;
+  if (userId) {
+    const { data: teacherData } = await supabase
+      .from('users')
+      .select('school_id')
+      .eq('id', userId)
+      .single();
+    schoolId = teacherData?.school_id;
+  }
+
+  // Fetch real students from the database based on the teacher's school
+  let query = supabase
     .from("users")
     .select(`
       id, first_name, last_name, email,
@@ -32,13 +46,14 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
         granular_performance
       )
     `)
-    .in("email", [
-      "student1@school.edu",
-      "student2@school.edu",
-      "student3@school.edu",
-      "student4@school.edu"
-    ])
+    .eq('role', 'Student')
     .order("first_name", { ascending: true });
+    
+  if (schoolId) {
+    query = query.eq('school_id', schoolId);
+  }
+
+  const { data: dbStudents } = await query;
 
   const students = dbStudents?.map((s: any) => {
     // Supabase returns a 1-to-1 relationship as an object, not an array!
@@ -75,19 +90,23 @@ export default async function ClassRosterPage({ params }: { params: Promise<{ cl
         </Link>
       </div>
 
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-200">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-200">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">{formattedClassName} Roster</h1>
-          <p className="text-slate-500 max-w-2xl font-medium">Log your intuitive pedagogical observations for each student. The AI engine continuously updates student rankings based on their daily practice.</p>
+          <p className="text-slate-500 font-medium">Currently teaching: <span className="text-slate-800 font-bold">{activeTopic.name}</span></p>
         </div>
-        <div className="bg-white border border-blue-200 px-5 py-3 rounded-2xl flex items-center space-x-4 shadow-sm">
-          <div className="bg-blue-50 p-2 rounded-xl">
-            <BrainCircuit className="w-6 h-6 text-blue-500" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider">Active Learning Module</span>
-            <span className="text-sm font-bold text-slate-800">{activeTopic.name}</span>
-          </div>
+        
+        <div className="flex gap-3">
+          <Link href={`/teacher/classes/${classId}/planner`}>
+            <button className="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-colors shadow-sm">
+              <Zap className="w-5 h-5" />
+              Lesson Planner
+            </button>
+          </Link>
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-colors shadow-sm">
+            <UserPlus className="w-5 h-5" />
+            Add Student
+          </button>
         </div>
       </header>
       
