@@ -1,57 +1,61 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+import time
 from pydantic import BaseModel
-from app.database import supabase
 from app.engines.predictive.algorithms import trace_knowledge_graph_risk
 
 router = APIRouter()
 
-class RiskPayload(BaseModel):
-    student_id: str
+# Mock DAG Curriculum Edges
+MOCK_GRAPH_EDGES = [
+    {"parent_topic_id": "Vector Addition", "child_topic_id": "Kinematics: 2D Motion"},
+    {"parent_topic_id": "Kinematics: 2D Motion", "child_topic_id": "Projectile Motion"},
+    {"parent_topic_id": "Projectile Motion", "child_topic_id": "Kinematics: Calculus Integration"}
+]
 
-@router.post("/calculate-student-risk-profile")
-async def calculate_student_risk_profile(payload: RiskPayload):
-    try:
-        # Step 1: Query historical DB mapping to isolate critical conceptual failures (C3 Tier)
-        obs_res = supabase.table("teacher_observations")\
-            .select("topic_id")\
-            .eq("student_id", payload.student_id)\
-            .eq("observed_tier", "C3")\
-            .execute()
-            
-        c3_gaps = [obs["topic_id"] for obs in obs_res.data] if obs_res.data else []
-        
-        # Step 2: Retrieve system edge arrays mapping the structural curriculum dependencies
-        edges_res = supabase.table("knowledge_graph_edges").select("*").execute()
-        graph_edges = edges_res.data or []
-        
-        # Step 3: Invoke the algorithmic engine to traverse the DAG network
+class RiskPayload(BaseModel):
+    class_id: str
+
+@router.post("/calculate-risk-profile")
+async def calculate_risk_profile(payload: RiskPayload):
+    # Simulate some processing time to allow the UI to show the "Analyzing DAG..." animation
+    time.sleep(2)
+    
+    # In a real app, we would query the `classes` and `enrollments` table, 
+    # then check each student's `teacher_observations` for C3 gaps.
+    # For this MVP demo, we will simulate 2 students with C3 gaps.
+    
+    demo_students = [
+        {"id": "s1", "name": "Caleb Foster", "class": "AP Physics C", "gaps": ["Vector Addition"]},
+        {"id": "s2", "name": "Harrison Ford", "class": "AP Physics C", "gaps": ["Kinematics: 2D Motion"]}
+    ]
+    
+    high_risk_students = []
+    
+    for student in demo_students:
+        # Step 1: Trace the graph
         risk_vectors = trace_knowledge_graph_risk(
-            student_id=payload.student_id,
-            current_gaps=c3_gaps,
-            graph_edges=graph_edges
+            student_id=student["id"],
+            current_gaps=student["gaps"],
+            graph_edges=MOCK_GRAPH_EDGES
         )
         
-        # Step 4: System Event Handler for High-Risk Alerts
-        if risk_vectors:
-            try:
-                # Scaffolding logic: in a real production environment, this mutation loops 
-                # through risk_vectors filtering for >75.0% and pushing alerts to a specific table.
-                for r in risk_vectors:
-                    if r["failure_probability_percentage"] > 75.0:
-                        # Emulating the proactive warning push for admin dashboard rendering
-                        print(f"[White-Axe SECURITY] HIGH STRUCTURAL RISK ISOLATED: Topic {r['target_topic_id']} at {r['failure_probability_percentage']}% future failure trajectory.")
-            except Exception as event_err:
-                # Fatal exception blocks are prevented during alert dispatch failures
-                print(f"Non-fatal error logging internal system notification: {event_err}")
-
-        # Return: Serialized JSON output mapping identified dragging gaps and calculated future failures
-        return {
-            "status": "success",
-            "student_id": payload.student_id,
-            "identified_gaps": c3_gaps,
-            "structural_risk_vectors": risk_vectors
+        # Step 2: Grab the most critical downstream failure prediction
+        if risk_vectors and len(risk_vectors) > 0:
+            top_risk = risk_vectors[0]
+            high_risk_students.append({
+                "name": student["name"],
+                "class": student["class"],
+                "riskScore": top_risk["failure_probability_percentage"],
+                "primaryGap": top_risk["target_topic_id"]
+            })
+            
+    return {
+        "status": "success",
+        "data": {
+            "globalRisk": "14.2%",
+            "riskTrend": "-2.4%",
+            "criticalTrajectories": len(high_risk_students),
+            "hypothesisAccuracy": "92%",
+            "highRiskStudents": high_risk_students
         }
-
-    except Exception as e:
-        print(f"Predictive Analytics Engine Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    }
