@@ -6,6 +6,7 @@ from app.engines.adaptive.routes import router as adaptive_router
 from app.engines.predictive.routes import router as predictive_router
 from app.engines.revision.routes import router as revision_router
 from app.engines.planning.routes import router as planning_router
+from app.engines.communication.routes import router as communication_router
 
 # Initialize the White-Axe FastApi Microservice
 app = FastAPI(
@@ -58,6 +59,12 @@ app.include_router(
     planning_router,
     prefix="/api/v1/planning",
     tags=["Lesson Planning Engine"]
+)
+
+app.include_router(
+    communication_router,
+    prefix="/api/v1/communication",
+    tags=["Communication Layer"]
 )
 
 @app.get("/health")

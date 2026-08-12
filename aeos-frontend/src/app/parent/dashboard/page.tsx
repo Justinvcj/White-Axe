@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Activity, Target, Gamepad2, Sparkles, CheckCircle2 } from "lucide-react";
+import { Heart, Activity, Target, Gamepad2, Sparkles, CheckCircle2, MessageSquareText } from "lucide-react";
 
 import { updateStudentInterest } from "@/app/actions/student-actions";
 
@@ -19,6 +19,10 @@ export default function ParentDashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // New state for AI Report
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [aiReport, setAiReport] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!interest.trim()) return;
@@ -33,6 +37,30 @@ export default function ParentDashboard() {
       console.error(error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      const res = await fetch("/api/ai/parent-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student_name: MOCK_STUDENT.name,
+          topic: MOCK_STUDENT.recentTopic,
+          interest: interest || "Cricket", // Fallback if they haven't set one today
+          performanceStatus: MOCK_STUDENT.performanceStatus
+        })
+      });
+      if (res.ok) {
+        const result = await res.json();
+        setAiReport(result.data.report);
+      }
+    } catch (e) {
+      console.error("Failed to generate report", e);
+    } finally {
+      setIsGeneratingReport(false);
     }
   };
 
@@ -154,15 +182,44 @@ export default function ParentDashboard() {
                   <CheckCircle2 className="w-12 h-12 text-primary" />
                 </motion.div>
                 <h2 className="text-3xl font-bold mb-4 text-foreground">Learning Context Updated!</h2>
-                <p className="text-muted-foreground text-lg max-w-lg mx-auto">
+                <p className="text-muted-foreground text-lg max-w-lg mx-auto mb-8">
                   Our AI engines are now recalculating Diya&apos;s matrix. Her upcoming assessments for {MOCK_STUDENT.recentTopic} will automatically incorporate <span className="text-accent font-bold">&quot;{interest}&quot;</span> to maximize engagement!
                 </p>
-                <button 
-                  onClick={() => { setSubmitted(false); setInterest(""); }}
-                  className="mt-8 text-primary hover:text-accent underline transition-colors"
-                >
-                  Add another interest
-                </button>
+                
+                {/* AI Insight Report Trigger */}
+                {!aiReport && (
+                  <button 
+                    onClick={handleGenerateReport}
+                    disabled={isGeneratingReport}
+                    className="mx-auto bg-card text-foreground border border-glass-border font-bold text-md px-6 py-3 rounded-xl hover:bg-muted transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    {isGeneratingReport ? (
+                      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                        <Sparkles className="w-5 h-5 text-accent" />
+                      </motion.div>
+                    ) : (
+                      <MessageSquareText className="w-5 h-5 text-accent" />
+                    )}
+                    {isGeneratingReport ? "Synthesizing AI Report..." : "Generate Weekly AI Insight"}
+                  </button>
+                )}
+
+                {/* AI Insight Report Result */}
+                {aiReport && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-2xl text-left relative"
+                  >
+                    <div className="absolute -top-3 -left-3 bg-primary text-primary-foreground p-2 rounded-full">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-primary mb-2 text-lg">AI Insight Report</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {aiReport}
+                    </p>
+                  </motion.div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
